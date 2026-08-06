@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" width="100%" height="100%">
+  <!-- Definitions for gradients and drop shadows -->
+  <defs>
+    <!-- Gradient for green leaves -->
+    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" /> <!-- emerald green -->
+      <stop offset="50%" stop-color="#22c55e" /> <!-- vibrant green -->
+      <stop offset="100%" stop-color="#15803d" /> <!-- forest green -->
+    </linearGradient>
+    
+    <!-- Gradient for coffee bean -->
+    <linearGradient id="beanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#854d0e" /> <!-- golden brown -->
+      <stop offset="50%" stop-color="#78350f" /> <!-- warm amber brown -->
+      <stop offset="100%" stop-color="#451a03" /> <!-- deep espresso -->
+    </linearGradient>
+
+    <!-- Gradient for text (Green) -->
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4ade80" /> <!-- vibrant green -->
+      <stop offset="100%" stop-color="#10b981" /> <!-- emerald green -->
+    </linearGradient>
+  </defs>
+
+  <!-- Left: Icon Mark -->
+  <g transform="translate(10, 0)">
+    <!-- Outer gold/bronze thin circle accent -->
+    <circle cx="35" cy="40" r="34" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6"/>
+    
+    <!-- Sprout Leaves -->
+    <!-- Left Leaf -->
+    <path d="M35,30 C20,30 14,18 20,8 C30,8 35,18 35,30 Z" fill="url(#leafGrad)" />
+    <!-- Right Leaf -->
+    <path d="M35,30 C50,30 56,18 50,8 C40,8 35,18 35,30 Z" fill="url(#leafGrad)" />
+    <!-- Leaf veins (subtle) -->
+    <path d="M35,30 C30,22 28,16 26,12" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.4" />
+    <path d="M35,30 C40,22 42,16 44,12" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.4" />
+
+    <!-- Coffee Bean Body -->
+    <!-- Left side -->
+    <path d="M32,32 C16,32 10,50 10,62 C10,74 22,78 30,78 C32,66 30,50 32,32 Z" fill="url(#beanGrad)" />
+    <!-- Right side -->
+    <path d="M38,32 C54,32 60,50 60,62 C60,74 48,78 40,78 C38,66 40,50 38,32 Z" fill="url(#beanGrad)" />
+    
+    <!-- S-curve gap/line in the middle of the bean (glossy highlight or shadow) -->
+    <path d="M33,34 C33,46 37,54 35,66 C33,74 38,77 38,77" fill="none" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round" opacity="0.8" />
+  </g>
+
+  <!-- Right: Typography -->
+  <!-- Brand Name -->
+  <text x="90" y="44" font-family="'Outfit', 'Inter', 'Segoe UI', sans-serif" font-weight="900" font-size="28" fill="#ffffff" letter-spacing="1.5">
+    COFFEE<tspan fill="#22c55e">.</tspan>DAT
+  </text>
+  
+  <!-- Tagline / Description -->
+  <text x="92" y="62" font-family="'Inter', 'Segoe UI', sans-serif" font-weight="700" font-size="9" fill="#e5e5e5" letter-spacing="4" opacity="0.9">
+    PRODUCTOS DE CAFICULTURA
+  </text>
+</svg>
