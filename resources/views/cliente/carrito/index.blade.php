@@ -808,6 +808,9 @@
                     }
                     if (isLogged) {
                         this.showCheckoutModal = true;
+                    } else {
+                        e.preventDefault();
+                        window.dispatchEvent(new CustomEvent('open-login'));
                     }
                 },
                 

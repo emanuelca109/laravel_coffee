@@ -86,7 +86,7 @@
                                 name="imagenes[]"
                                 accept="image/*"
                                 multiple
-                                onchange="previewImagenes()"
+                                onchange="agregarImagenesPreview(event)"
                                 style="width: 100%; border: 1px solid #d1d5db; border-radius: 10px; padding: 8px 12px; font-size: 13px; outline: none;">
 
                             <p style="margin: 6px 0 0; font-size: 12px; color: #9ca3af;">
@@ -292,6 +292,8 @@
 </div>
 
 <script>
+    let dtCrear = new DataTransfer();
+
     function abrirModal() {
         document.getElementById('modalProducto').classList.remove('hidden');
         document.body.classList.add('overflow-hidden');
@@ -302,6 +304,26 @@
         document.body.classList.remove('overflow-hidden');
         document.getElementById('imagenes_input').value = '';
         document.getElementById('galeria_preview').innerHTML = '';
+        dtCrear = new DataTransfer();
+    }
+
+    function agregarImagenesPreview(event) {
+        const input = event.target;
+        
+        // Evitar que se borre si el usuario abre el selector y le da a cancelar
+        if (input.files.length === 0) {
+            input.files = dtCrear.files;
+            return;
+        }
+
+        // Agregar los nuevos archivos al DataTransfer global
+        Array.from(input.files).forEach(file => {
+            dtCrear.items.add(file);
+        });
+
+        // Actualizar el input con todos los archivos acumulados
+        input.files = dtCrear.files;
+        previewImagenes();
     }
 
     function previewImagenes() {
@@ -319,20 +341,32 @@
                     div.style.width = '80px';
                     div.style.height = '80px';
                     div.style.borderRadius = '8px';
-                    div.style.overflow = 'hidden';
+                    div.style.overflow = 'visible'; // Cambiado de hidden a visible para ver la 'x'
                     div.style.background = '#f3f4f6';
                     div.style.display = 'flex';
                     div.style.alignItems = 'center';
                     div.style.justifyContent = 'center';
+                    // Pequeña sombra para verse mejor
+                    div.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
 
                     let badgeHTML = '';
                     if (index === 0) {
-                        badgeHTML = '<div style="position: absolute; top: 2px; left: 2px; background: #16a34a; color: white; font-size: 10px; padding: 2px 4px; border-radius: 3px; font-weight: bold;">Principal</div>';
+                        badgeHTML = '<div style="position: absolute; top: 2px; left: 2px; background: #16a34a; color: white; font-size: 10px; padding: 2px 4px; border-radius: 3px; font-weight: bold; z-index: 1;">Principal</div>';
                     }
 
+                    // Botón de eliminar
+                    let btnEliminar = `
+                        <button type="button" 
+                                onclick="eliminarImagenPreview(${index})" 
+                                style="position: absolute; top: -6px; right: -6px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 14px; font-weight: bold; z-index: 10; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); line-height: 1;">
+                            &times;
+                        </button>
+                    `;
+
                     div.innerHTML = `
+                        ${btnEliminar}
                         ${badgeHTML}
-                        <img src="${e.target.result}" alt="Preview ${index}" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="${e.target.result}" alt="Preview ${index}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
                     `;
 
                     galeria.appendChild(div);
@@ -341,6 +375,21 @@
                 reader.readAsDataURL(file);
             });
         }
+    }
+
+    function eliminarImagenPreview(index) {
+        const input = document.getElementById('imagenes_input');
+        const dtNuevo = new DataTransfer();
+        
+        for(let i = 0; i < input.files.length; i++) {
+            if(i !== index) {
+                dtNuevo.items.add(input.files[i]);
+            }
+        }
+        
+        input.files = dtNuevo.files;
+        dtCrear = dtNuevo; // Actualizar el DataTransfer global
+        previewImagenes(); // Volver a renderizar
     }
 
     document.addEventListener('keydown', function (e) {

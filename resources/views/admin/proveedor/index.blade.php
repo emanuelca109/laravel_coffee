@@ -226,23 +226,18 @@
 
                                                 </button>
 
-                                                <form action="{{ route('proveedores.destroy', $proveedor->id) }}"
-                                                        method="POST"
-                                                        onsubmit="return confirm('¿Deseas eliminar este proveedor?')">
+                                                <button
+                                                    type="button"
+                                                    title="Eliminar proveedor"
+                                                    onclick="abrirModalEliminar(
+                                                        '{{ $proveedor->id }}',
+                                                        '{{ addslashes($proveedor->nombre_empresa) }}'
+                                                    )"
+                                                    class="w-9 h-9 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-colors">
 
-                                                    @csrf
-                                                    @method('DELETE')
+                                                    <i class="fa-solid fa-trash text-sm"></i>
 
-                                                    <button
-                                                        type="submit"
-                                                        title="Eliminar proveedor"
-                                                        class="w-9 h-9 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-colors">
-
-                                                        <i class="fa-solid fa-trash text-sm"></i>
-
-                                                    </button>
-
-                                                </form>
+                                                </button>
 
                                             </div>
                                         </td>
@@ -284,6 +279,7 @@
         @include('admin.proveedor.crear')
 
         @include('admin.proveedor.editar')
+        @include('admin.proveedor.eliminar')
 
         {{-- Footer --}}
         @include('layouts.footer')

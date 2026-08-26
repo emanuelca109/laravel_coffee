@@ -21,7 +21,7 @@ class ClienteController extends Controller
             session()->flash('direct_producto_id', $data['producto_id']);
         }
 
-        $categorias = Categoria::all();
+        $categorias = Categoria::where('estado', 'Activo')->get();
 
         $productos = Producto::with(['imagenPrincipal', 'categoria']);
 
@@ -29,7 +29,7 @@ class ClienteController extends Controller
             $productos->where('categoria_id', $request->categoria);
         }
 
-        $productos = $productos->get();
+        $productos = $productos->latest()->get();
 
         return view('welcome', compact('productos', 'categorias'));
     }

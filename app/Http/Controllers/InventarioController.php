@@ -16,7 +16,7 @@ class InventarioController extends Controller
             return $producto->estado_stock !== 'Disponible';
         })->count();
 
-        $productos = Producto::with(['categoria', 'inventario'])->paginate(10);
+        $productos = Producto::with(['categoria', 'inventario'])->latest()->paginate(10);
 
         return view('admin.inventario.index', compact('productos', 'totalProductos', 'alertas'));
     }

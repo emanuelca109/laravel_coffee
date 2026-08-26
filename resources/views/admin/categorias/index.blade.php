@@ -215,23 +215,18 @@
 
                                                 </button>
 
-                                                <form action="{{ route('categorias.destroy', $categoria->id) }}"
-                                                        method="POST"
-                                                        onsubmit="return confirm('¿Deseas eliminar esta categoría?')">
+                                                <button
+                                                    type="button"
+                                                    title="Eliminar categoría"
+                                                    onclick="abrirModalEliminar(
+                                                        '{{ $categoria->id }}',
+                                                        '{{ addslashes($categoria->nombre) }}'
+                                                    )"
+                                                    class="w-9 h-9 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-colors">
 
-                                                    @csrf
-                                                    @method('DELETE')
+                                                    <i class="fa-solid fa-trash text-sm"></i>
 
-                                                    <button
-                                                        type="submit"
-                                                        title="Eliminar categoría"
-                                                        class="w-9 h-9 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-colors">
-
-                                                        <i class="fa-solid fa-trash text-sm"></i>
-
-                                                    </button>
-
-                                                </form>
+                                                </button>
 
                                             </div>
                                         </td>
@@ -273,6 +268,7 @@
         @include('admin.categorias.crear')
 
         @include('admin.categorias.editar')
+        @include('admin.categorias.eliminar')
 
         {{-- Footer --}}
         @include('layouts.footer')

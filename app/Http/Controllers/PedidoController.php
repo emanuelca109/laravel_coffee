@@ -17,7 +17,7 @@ class PedidoController extends Controller
         $estado = $request->get('estado');
 
         // Obtener todos los pedidos con su usuario asociado, aplicando el filtro si existe
-        $query = Pedido::with('user')->orderBy('created_at', 'desc');
+        $query = Pedido::with('user')->latest();
 
         if ($estado) {
             // Manejar 'Pendiente' que también incluye 'Activo'

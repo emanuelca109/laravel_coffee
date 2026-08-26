@@ -93,7 +93,7 @@
                                 name="imagenes[]"
                                 accept="image/*"
                                 multiple
-                                onchange="previewImagenesEditar()"
+                                onchange="agregarImagenesPreviewEditar(event)"
                                 style="width: 100%; border: 1px solid #d1d5db; border-radius: 10px; padding: 8px 12px; font-size: 13px; outline: none;">
 
                             <p style="margin: 6px 0 0; font-size: 12px; color: #9ca3af;">
@@ -308,6 +308,7 @@
 <script>
 
 let imagenesGuardadas = [];
+let dtEditar = new DataTransfer();
 
 function abrirModalEditar(id, nombre, descripcion, categoria_id, precio_compra, precio_venta, stock_actual, stock_minimo, proveedor_id, estado)
 {
@@ -329,6 +330,7 @@ function abrirModalEditar(id, nombre, descripcion, categoria_id, precio_compra, 
     // Limpiar input de nuevas imágenes
     document.getElementById('edit_imagenes_input').value = '';
     document.getElementById('galeria_preview_editar').innerHTML = '';
+    dtEditar = new DataTransfer();
 
     document.getElementById('modalEditarProducto').classList.remove('hidden');
 }
@@ -339,6 +341,7 @@ function cerrarModalEditar()
     document.getElementById('edit_imagenes_input').value = '';
     document.getElementById('galeria_preview_editar').innerHTML = '';
     imagenesGuardadas = [];
+    dtEditar = new DataTransfer();
 }
 
 function cargarImagenesGuardadas(productoId) {
@@ -377,6 +380,7 @@ function validarCantidadImagenes() {
     if (guardadas + nuevas > 5) {
         alert(`Un producto puede tener máximo 5 imágenes en total. Tienes ${guardadas} guardadas y quieres agregar ${nuevas}.`);
         input.value = '';
+        dtEditar = new DataTransfer(); // Si hay error, reiniciamos el acumulador local también
         document.getElementById('galeria_preview_editar').innerHTML = '';
         return false;
     }
@@ -393,32 +397,54 @@ function mostrarImagenesGuardadas() {
         div.style.width = '80px';
         div.style.height = '80px';
         div.style.borderRadius = '8px';
-        div.style.overflow = 'hidden';
+        div.style.overflow = 'visible';
         div.style.background = '#f3f4f6';
         div.style.display = 'flex';
         div.style.alignItems = 'center';
         div.style.justifyContent = 'center';
+        div.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
 
         let badgeHTML = '';
         if (imagen.principal) {
-            badgeHTML = '<div style="position: absolute; top: 2px; left: 2px; background: #16a34a; color: white; font-size: 10px; padding: 2px 4px; border-radius: 3px; font-weight: bold;">Principal</div>';
+            badgeHTML = '<div style="position: absolute; top: 2px; left: 2px; background: #16a34a; color: white; font-size: 10px; padding: 2px 4px; border-radius: 3px; font-weight: bold; z-index: 1;">Principal</div>';
         }
 
-        let btnEliminar = `<button type="button" onclick="eliminarImagenGuardada(${imagen.id}, ${index})" style="position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-size: 14px; font-weight: bold; z-index: 10; display: flex; align-items: center; justify-content: center;">&times;</button>`;
+        let btnEliminar = `<button type="button" onclick="eliminarImagenGuardada(${imagen.id}, ${index})" style="position: absolute; top: -6px; right: -6px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 14px; font-weight: bold; z-index: 10; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); line-height: 1;">&times;</button>`;
 
         div.innerHTML = `
             ${btnEliminar}
             ${badgeHTML}
-            <img src="/storage/${imagen.url_imagen}" alt="Imagen ${index}" style="width: 100%; height: 100%; object-fit: cover;">
+            <img src="/storage/${imagen.url_imagen}" alt="Imagen ${index}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
         `;
 
         galeria.appendChild(div);
     });
 }
 
-function previewImagenesEditar() {
-    if (!validarCantidadImagenes()) return;
+function agregarImagenesPreviewEditar(event) {
+    const input = event.target;
+    
+    // Evitar borrar si cancelan
+    if (input.files.length === 0) {
+        input.files = dtEditar.files;
+        return;
+    }
 
+    // Acumulamos
+    Array.from(input.files).forEach(file => {
+        dtEditar.items.add(file);
+    });
+
+    // Reasignamos al input y previsualizamos
+    input.files = dtEditar.files;
+    
+    // Si excede el máximo de imágenes, la función validarCantidadImagenes() vaciará todo.
+    if (!validarCantidadImagenes()) return;
+    
+    previewImagenesEditar();
+}
+
+function previewImagenesEditar() {
     const input = document.getElementById('edit_imagenes_input');
     const galeria = document.getElementById('galeria_preview_editar');
     galeria.innerHTML = '';
@@ -433,17 +459,27 @@ function previewImagenesEditar() {
                 div.style.width = '80px';
                 div.style.height = '80px';
                 div.style.borderRadius = '8px';
-                div.style.overflow = 'hidden';
+                div.style.overflow = 'visible'; // Cambiado a visible para mostrar el botón
                 div.style.background = '#f3f4f6';
                 div.style.display = 'flex';
                 div.style.alignItems = 'center';
                 div.style.justifyContent = 'center';
+                div.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
 
-                let badgeHTML = '<div style="position: absolute; top: 2px; left: 2px; background: #fbbf24; color: #000; font-size: 10px; padding: 2px 4px; border-radius: 3px; font-weight: bold;">Nueva</div>';
+                let badgeHTML = '<div style="position: absolute; top: 2px; left: 2px; background: #fbbf24; color: #000; font-size: 10px; padding: 2px 4px; border-radius: 3px; font-weight: bold; z-index: 1;">Nueva</div>';
+
+                let btnEliminar = `
+                    <button type="button" 
+                            onclick="eliminarImagenPreviewEditar(${index})" 
+                            style="position: absolute; top: -6px; right: -6px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 14px; font-weight: bold; z-index: 10; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); line-height: 1;">
+                        &times;
+                    </button>
+                `;
 
                 div.innerHTML = `
+                    ${btnEliminar}
                     ${badgeHTML}
-                    <img src="${e.target.result}" alt="Preview ${index}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <img src="${e.target.result}" alt="Preview ${index}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
                 `;
 
                 galeria.appendChild(div);
@@ -452,6 +488,28 @@ function previewImagenesEditar() {
             reader.readAsDataURL(file);
         });
     }
+}
+
+function eliminarImagenPreviewEditar(index) {
+    const input = document.getElementById('edit_imagenes_input');
+    const dtNuevo = new DataTransfer();
+    
+    for(let i = 0; i < input.files.length; i++) {
+        if(i !== index) {
+            dtNuevo.items.add(input.files[i]);
+        }
+    }
+    
+    input.files = dtNuevo.files;
+    dtEditar = dtNuevo;
+    
+    // Si todo está vacío, limpia
+    if (input.files.length === 0) {
+        document.getElementById('galeria_preview_editar').innerHTML = '';
+        return;
+    }
+    
+    previewImagenesEditar(); // Volver a renderizar las vistas previas
 }
 
 </script>

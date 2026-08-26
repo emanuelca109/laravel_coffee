@@ -47,7 +47,7 @@ class VentaController extends Controller
             }
         }
 
-        $ventas = $query->orderBy('created_at', 'desc')->paginate(10);
+        $ventas = $query->latest()->paginate(10);
 
         foreach ($ventas as $venta) {
             $costoVenta = 0;

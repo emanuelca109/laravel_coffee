@@ -10,7 +10,7 @@ class DashboardController extends Controller
     {
         if (auth()->check() && auth()->user()->role_id == 1) {
             $usuarios = \App\Models\User::count();
-            $ingresos = \App\Models\Pedido::sum('total');
+            $ingresos = \App\Models\Pedido::where('estado', 'Entregado')->sum('total');
             $stockBajo = \App\Models\Producto::whereColumn('stock_actual', '<=', 'stock_minimo')->count();
             $productos = \App\Models\Producto::count();
 

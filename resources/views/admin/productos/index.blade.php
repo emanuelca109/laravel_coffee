@@ -277,23 +277,18 @@
 
                                                 </button>
 
-                                                <form action="{{ route('productos.destroy', $producto->id) }}"
-                                                        method="POST"
-                                                        onsubmit="return confirm('¿Deseas eliminar este producto?')">
+                                                <button
+                                                    type="button"
+                                                    title="Eliminar producto"
+                                                    onclick="abrirModalEliminar(
+                                                        '{{ $producto->id }}',
+                                                        '{{ addslashes($producto->nombre) }}'
+                                                    )"
+                                                    class="w-9 h-9 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-colors">
 
-                                                    @csrf
-                                                    @method('DELETE')
+                                                    <i class="fa-solid fa-trash text-sm"></i>
 
-                                                    <button
-                                                        type="submit"
-                                                        title="Eliminar producto"
-                                                        class="w-9 h-9 flex items-center justify-center rounded-full bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-colors">
-
-                                                        <i class="fa-solid fa-trash text-sm"></i>
-
-                                                    </button>
-
-                                                </form>
+                                                </button>
 
                                             </div>
                                         </td>
@@ -335,6 +330,7 @@
         @include('admin.productos.crear')
 
         @include('admin.productos.editar')
+        @include('admin.productos.eliminar')
 
         {{-- Footer --}}
         @include('layouts.footer')

@@ -59,10 +59,11 @@ class AuthenticatedSessionController extends Controller
     {
         Auth::guard('web')->logout();
 
+        \Illuminate\Support\Facades\Log::info('Logout method executed');
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
 
-        return redirect()->route('inicio');
+        return redirect('/')->with('success', 'Has cerrado sesión exitosamente.');
     }
 }
