@@ -194,19 +194,36 @@
                         Volver a Envío
                     </button>
                     
-                    <h3 class="text-xl font-bold text-gray-900 mb-6">Elige tu método de pago</h3>
+                    <h3 class="text-xl font-bold text-gray-900 mb-1">Elige tu método de pago</h3>
+                    <p class="text-sm text-gray-500 mb-6">Selecciona cómo deseas pagar tu compra</p>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <label class="border-2 rounded-2xl p-6 cursor-pointer relative transition has-[:checked]:border-[#16a34a] has-[:checked]:bg-green-50/50 border-gray-200 hover:border-green-300 flex flex-col items-center justify-center text-center">
                             <input type="radio" name="metodo_pago" value="Nequi" checked class="absolute opacity-0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-[#16a34a] mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                             <span class="block font-extrabold text-gray-800 text-lg">Nequi</span>
+                            <span class="block text-gray-500 text-sm mt-1">Transferencia directa</span>
                         </label>
                         
                         <label class="border-2 rounded-2xl p-6 cursor-pointer relative transition has-[:checked]:border-[#16a34a] has-[:checked]:bg-green-50/50 border-gray-200 hover:border-green-300 flex flex-col items-center justify-center text-center">
                             <input type="radio" name="metodo_pago" value="Daviplata" class="absolute opacity-0">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-red-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                             <span class="block font-extrabold text-gray-800 text-lg">Daviplata</span>
+                            <span class="block text-gray-500 text-sm mt-1">Transferencia directa</span>
+                        </label>
+
+                        <label class="border-2 rounded-2xl p-6 cursor-pointer relative transition has-[:checked]:border-[#16a34a] has-[:checked]:bg-green-50/50 border-gray-200 hover:border-green-300 flex flex-col items-center justify-center text-center">
+                            <input type="radio" name="metodo_pago" value="PSE" class="absolute opacity-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-blue-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                            <span class="block font-extrabold text-gray-800 text-lg">PSE</span>
+                            <span class="block text-gray-500 text-sm mt-1">Pago seguro en línea</span>
+                        </label>
+
+                        <label class="border-2 rounded-2xl p-6 cursor-pointer relative transition has-[:checked]:border-[#16a34a] has-[:checked]:bg-green-50/50 border-gray-200 hover:border-green-300 flex flex-col items-center justify-center text-center">
+                            <input type="radio" name="metodo_pago" value="Tarjeta" class="absolute opacity-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-yellow-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                            <span class="block font-extrabold text-gray-800 text-lg">Tarjeta</span>
+                            <span class="block text-gray-500 text-sm mt-1">Crédito o Débito</span>
                         </label>
                     </div>
                 </div>

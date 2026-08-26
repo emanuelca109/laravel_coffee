@@ -221,19 +221,35 @@
 
             <!-- Tarjetas resumen -->
             <div class="cards-row">
+                <a href="{{ request()->fullUrlWithQuery(['estado' => 'Activo']) }}" class="card {{ request('estado') == 'Activo' ? 'active-card' : '' }}">
+                    <div class="card-icon icon-pendientes"><i class="fa-solid fa-play"></i></div>
+                    <div>
+                        <div class="card-label">ACTIVOS</div>
+                        <div class="card-value">{{ $activos ?? 0 }}</div>
+                    </div>
+                </a>
+
                 <a href="{{ request()->fullUrlWithQuery(['estado' => 'Pendiente']) }}" class="card {{ request('estado') == 'Pendiente' ? 'active-card' : '' }}">
                     <div class="card-icon icon-pendientes"><i class="fa-solid fa-clock"></i></div>
                     <div>
                         <div class="card-label">PENDIENTES</div>
-                        <div class="card-value">{{ $pendientes }}</div>
+                        <div class="card-value">{{ $pendientes ?? 0 }}</div>
                     </div>
                 </a>
 
-                <a href="{{ request()->fullUrlWithQuery(['estado' => 'En camino']) }}" class="card {{ request('estado') == 'En camino' ? 'active-card' : '' }}">
-                    <div class="card-icon icon-encamino"><i class="fa-solid fa-truck"></i></div>
+                <a href="{{ request()->fullUrlWithQuery(['estado' => 'En Proceso']) }}" class="card {{ request('estado') == 'En Proceso' ? 'active-card' : '' }}">
+                    <div class="card-icon icon-encamino" style="background:#dbeafe; color:#2563eb;"><i class="fa-solid fa-spinner"></i></div>
                     <div>
-                        <div class="card-label">EN CAMINO</div>
-                        <div class="card-value">{{ $enCamino }}</div>
+                        <div class="card-label">EN PROCESO</div>
+                        <div class="card-value">{{ $enProceso ?? 0 }}</div>
+                    </div>
+                </a>
+
+                <a href="{{ request()->fullUrlWithQuery(['estado' => 'Enviado']) }}" class="card {{ request('estado') == 'Enviado' ? 'active-card' : '' }}">
+                    <div class="card-icon icon-encamino" style="background:#f3e8ff; color:#9333ea;"><i class="fa-solid fa-truck-fast"></i></div>
+                    <div>
+                        <div class="card-label">ENVIADOS</div>
+                        <div class="card-value">{{ $enviados ?? 0 }}</div>
                     </div>
                 </a>
 
@@ -241,15 +257,7 @@
                     <div class="card-icon icon-entregados"><i class="fa-solid fa-circle-check"></i></div>
                     <div>
                         <div class="card-label">ENTREGADOS</div>
-                        <div class="card-value">{{ $entregados }}</div>
-                    </div>
-                </a>
-
-                <a href="{{ request()->fullUrlWithQuery(['estado' => 'Cancelado']) }}" class="card {{ request('estado') == 'Cancelado' ? 'active-card' : '' }}">
-                    <div class="card-icon icon-cancelados"><i class="fa-solid fa-circle-xmark"></i></div>
-                    <div>
-                        <div class="card-label">CANCELADOS</div>
-                        <div class="card-value">{{ $cancelados }}</div>
+                        <div class="card-value">{{ $entregados ?? 0 }}</div>
                     </div>
                 </a>
             </div>
@@ -301,9 +309,11 @@
                                     $fEntregaDisplay = $infoEnvio && $infoEnvio->fecha_entrega ? $infoEnvio->fecha_entrega->format('d/m/Y') : '-';
 
                                     $estadoStrLC = strtolower($estadoActual);
-                                    if (str_contains($estadoStrLC, 'pendiente')) {
+                                    if (str_contains($estadoStrLC, 'activo') || str_contains($estadoStrLC, 'pendiente')) {
                                         $badgeClass = 'badge-pendiente';
-                                    } elseif (str_contains($estadoStrLC, 'camino')) {
+                                    } elseif (str_contains($estadoStrLC, 'proceso')) {
+                                        $badgeClass = 'badge-encamino';
+                                    } elseif (str_contains($estadoStrLC, 'enviado')) {
                                         $badgeClass = 'badge-encamino';
                                     } elseif (str_contains($estadoStrLC, 'entregado')) {
                                         $badgeClass = 'badge-entregado';
@@ -486,9 +496,9 @@
                                    border-radius:10px; background:#f8fafc; font-size:14px;
                                    color:#1e293b; box-sizing:border-box; appearance:auto;">
                         <option value="Pendiente">Pendiente</option>
-                        <option value="En camino">En camino</option>
+                        <option value="En Proceso">En Proceso</option>
+                        <option value="Enviado">Enviado</option>
                         <option value="Entregado">Entregado</option>
-                        <option value="Cancelado">Cancelado</option>
                     </select>
                 </div>
 

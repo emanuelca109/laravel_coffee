@@ -66,6 +66,12 @@ class PedidoController extends Controller
         $pedido->estado = $request->estado;
         $pedido->save();
 
+        if ($pedido->informacionEnvio) {
+            $pedido->informacionEnvio->update([
+                'estado' => $request->estado
+            ]);
+        }
+
         // Lógica de inventario al cambiar de estado
         if ($oldEstado !== 'Entregado' && $request->estado === 'Entregado') {
             // El pedido se completó (es una venta). Descontamos el stock reservado y el físico.

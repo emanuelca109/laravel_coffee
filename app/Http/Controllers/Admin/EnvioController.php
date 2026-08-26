@@ -18,18 +18,20 @@ class EnvioController extends Controller
         $queryBase = clone $query;
         $allPedidos = $queryBase->get();
 
+        $activos = 0;
         $pendientes = 0;
-        $enCamino = 0;
+        $enProceso = 0;
+        $enviados = 0;
         $entregados = 0;
-        $cancelados = 0;
 
         foreach ($allPedidos as $pedido) {
             $estado = $pedido->informacionEnvio ? $pedido->informacionEnvio->estado : 'Pendiente';
             
             if ($estado == 'Pendiente') $pendientes++;
-            elseif ($estado == 'En camino') $enCamino++;
+            elseif ($estado == 'Activo') $activos++;
+            elseif ($estado == 'En Proceso') $enProceso++;
+            elseif ($estado == 'Enviado') $enviados++;
             elseif ($estado == 'Entregado') $entregados++;
-            elseif ($estado == 'Cancelado') $cancelados++;
         }
 
         // Filtro por estado
@@ -53,10 +55,11 @@ class EnvioController extends Controller
 
         return view('admin.envios.index', compact(
             'pedidos',
+            'activos',
             'pendientes',
-            'enCamino',
-            'entregados',
-            'cancelados'
+            'enProceso',
+            'enviados',
+            'entregados'
         ));
     }
 
@@ -97,6 +100,11 @@ class EnvioController extends Controller
                 'direccion' => $direccion,
             ]);
         }
+
+        // Actualizar el estado del pedido automáticamente
+        $pedido->update([
+            'estado' => $request->estado
+        ]);
 
         return redirect()->back()->with('success', 'Estado de envío actualizado correctamente.');
     }

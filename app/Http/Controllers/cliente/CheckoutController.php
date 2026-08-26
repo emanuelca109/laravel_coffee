@@ -132,6 +132,11 @@ class CheckoutController extends Controller
             session()->forget('compra_directa');
         } else {
             session()->forget('carrito');
+            if (auth()->check()) {
+                $user = auth()->user();
+                $user->carrito = null;
+                $user->save();
+            }
         }
         
         session()->forget('iniciar_compra');

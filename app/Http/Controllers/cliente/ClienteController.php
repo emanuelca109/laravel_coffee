@@ -179,6 +179,7 @@ class ClienteController extends Controller
         ];
 
         session()->put('carrito', $carrito);
+        $this->sincronizarCarritoBD();
 
         return redirect()->back()->with('success', 'Producto añadido al carrito exitosamente');
     }
@@ -200,6 +201,7 @@ class ClienteController extends Controller
                 unset($carrito[$producto_id]);
             }
             session()->put('carrito', $carrito);
+            $this->sincronizarCarritoBD();
         }
 
         return redirect()->back();
@@ -212,6 +214,7 @@ class ClienteController extends Controller
         if (isset($carrito[$producto_id])) {
             unset($carrito[$producto_id]);
             session()->put('carrito', $carrito);
+            $this->sincronizarCarritoBD();
         }
 
         return redirect()->back();
@@ -357,7 +360,15 @@ class ClienteController extends Controller
         
         // Configurar el papel como Ticket (ancho 80mm aprox 226pt, altura auto)
         $pdf->setPaper([0, 0, 226, 1000], 'portrait');
-        
         return $pdf->download('Factura_POS_' . $pedido->numero_pedido . '.pdf');
+    }
+
+    private function sincronizarCarritoBD()
+    {
+        if (auth()->check()) {
+            $user = auth()->user();
+            $user->carrito = json_encode(session()->get('carrito', []));
+            $user->save();
+        }
     }
 }
