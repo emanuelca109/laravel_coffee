@@ -1,39 +1,114 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('password.store') }}">
-        @csrf
+@extends('layouts.auth-modal')
 
-        <!-- Password Reset Token -->
-        <input type="hidden" name="token" value="{{ $request->route('token') }}">
+@section('title', 'Restablecer Contraseña | Coffee Dat')
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+@section('content')
+<h4 class="auth-title">Restablecer Contraseña</h4>
+<p class="auth-subtitle">Ingresa tu nueva contraseña</p>
+
+<form method="POST" action="{{ route('password.store') }}">
+    @csrf
+
+    <!-- Password Reset Token -->
+    <input type="hidden" name="token" value="{{ $request->route('token') }}">
+
+    <div class="mb-4">
+        <label class="form-label">
+            Correo Electrónico
+        </label>
+
+        <div class="input-icon-wrap">
+            <i class="bi bi-envelope-fill"></i>
+            <input
+                type="email"
+                name="email"
+                value="{{ old('email', $request->email) }}"
+                class="form-control @error('email') is-invalid @enderror"
+                placeholder="Ej: usuario@correo.com"
+                required
+                autofocus
+            >
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        @error('email')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label">
+            Nueva Contraseña
+        </label>
+
+        <div class="input-icon-wrap">
+            <i class="bi bi-lock-fill"></i>
+            <input
+                id="password"
+                type="password"
+                name="password"
+                class="form-control @error('password') is-invalid @enderror"
+                placeholder="Mínimo 8 caracteres"
+                required
+                autocomplete="new-password"
+                style="padding-right: 46px;"
+            >
+            <button type="button" class="toggle-eye" id="togglePassword">
+                <i class="bi bi-eye-fill" id="eyeIcon"></i>
+            </button>
         </div>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+        @error('password')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                                type="password"
-                                name="password_confirmation" required autocomplete="new-password" />
+    <div class="mb-5">
+        <label class="form-label">
+            Confirmar Contraseña
+        </label>
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+        <div class="input-icon-wrap">
+            <i class="bi bi-lock-fill"></i>
+            <input
+                id="password_confirmation"
+                type="password"
+                name="password_confirmation"
+                class="form-control"
+                placeholder="Repite la contraseña"
+                required
+                autocomplete="new-password"
+                style="padding-right: 46px;"
+            >
+            <button type="button" class="toggle-eye" id="toggleConfirmPassword">
+                <i class="bi bi-eye-fill" id="eyeIconConfirm"></i>
+            </button>
         </div>
+    </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Reset Password') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+    <button type="submit" class="btn-login">
+        Restablecer Contraseña <i class="bi bi-check2-circle ms-2"></i>
+    </button>
+</form>
+@endsection
+
+@push('scripts')
+<script>
+    function setupToggle(buttonId, inputId, iconId) {
+        const button = document.getElementById(buttonId);
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+
+        if(button && input && icon) {
+            button.addEventListener('click', function () {
+                const isPassword = input.type === 'password';
+                input.type = isPassword ? 'text' : 'password';
+                icon.classList.toggle('bi-eye-fill');
+                icon.classList.toggle('bi-eye-slash-fill');
+            });
+        }
+    }
+
+    setupToggle('togglePassword', 'password', 'eyeIcon');
+    setupToggle('toggleConfirmPassword', 'password_confirmation', 'eyeIconConfirm');
+</script>
+@endpush

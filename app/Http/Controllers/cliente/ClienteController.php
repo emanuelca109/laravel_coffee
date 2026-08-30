@@ -29,6 +29,14 @@ class ClienteController extends Controller
             $productos->where('categoria_id', $request->categoria);
         }
 
+        if ($request->q) {
+            $search = $request->q;
+            $productos->where(function($query) use ($search) {
+                $query->where('nombre', 'like', "%{$search}%")
+                      ->orWhere('descripcion', 'like', "%{$search}%");
+            });
+        }
+
         $productos = $productos->latest()->get();
 
         return view('welcome', compact('productos', 'categorias'));

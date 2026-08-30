@@ -72,10 +72,11 @@
 
         {{-- Buscador --}}
         <div class="relative z-20 w-full flex justify-center px-6">
-            <form action="{{ Route::has('productos.buscar') ? route('productos.buscar') : '#' }}" method="GET" class="relative w-full max-w-[700px]">
+            <form action="{{ route('inicio') }}" method="GET" class="relative w-full max-w-[700px]">
                 <input
                     type="text"
                     name="q"
+                    value="{{ request('q') }}"
                     placeholder="Buscar en Coffee Dat..."
                     class="w-full rounded-full py-3 pl-5 pr-14 text-sm text-gray-700 placeholder-gray-400 shadow-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
@@ -196,10 +197,31 @@
         ============================== -->
         <section class="max-w-7xl mx-auto px-6 py-12">
 
-            <h2 class="text-4xl font-bold text-gray-800 mb-10">
-                Nuestros Productos
-            </h2>
+            <div class="flex items-center justify-between mb-10">
+                <h2 class="text-4xl font-bold text-gray-800">
+                    {{ request()->has('q') ? 'Resultados de búsqueda' : 'Nuestros Productos' }}
+                </h2>
+                
+                @if(request()->has('q'))
+                    <a href="{{ route('inicio') }}" class="text-green-600 hover:text-green-700 font-semibold text-sm bg-green-50 px-4 py-2 rounded-full border border-green-200 transition">
+                        Limpiar búsqueda &times;
+                    </a>
+                @endif
+            </div>
 
+            @if(request()->has('q'))
+                <p class="text-gray-500 mb-6 -mt-6">Mostrando resultados para: <span class="font-bold text-gray-800">"{{ request('q') }}"</span></p>
+            @endif
+
+            @if($productos->isEmpty())
+                <div class="bg-white rounded-3xl p-10 text-center shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 class="text-xl font-bold text-gray-700 mb-2">No encontramos nada</h3>
+                    <p class="text-gray-500">No hay productos que coincidan con tu búsqueda.</p>
+                </div>
+            @else
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
 
                 @foreach($productos as $producto)
@@ -306,6 +328,7 @@
                 @endforeach
 
             </div>
+            @endif
 
         </section>
 
