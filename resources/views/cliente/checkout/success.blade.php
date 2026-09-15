@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>¡Gracias por tu compra! | Coffee.Dat</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('img/logo-icon.svg') }}">
+    <link rel="shortcut icon" href="{{ asset('img/logo-icon.svg') }}">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 flex items-center justify-center min-h-screen p-4 font-sans">

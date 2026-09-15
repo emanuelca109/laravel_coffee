@@ -39,9 +39,7 @@
                         @php
                             $cartCount = session()->has('carrito') ? array_sum(array_column(session('carrito'), 'cantidad')) : 0;
                         @endphp
-                        @if($cartCount > 0)
-                            <span class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ $cartCount }}</span>
-                        @endif
+                        <span class="cart-count-badge bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full transition-transform duration-300 {{ $cartCount > 0 ? '' : 'hidden' }}">{{ $cartCount }}</span>
                     </a>
                 </li>
 

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Categorías | Coffee.dat</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('img/logo-icon.svg') }}">
+    <link rel="shortcut icon" href="{{ asset('img/logo-icon.svg') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -90,12 +92,11 @@
                     </div>
 
                     <button
-                        onclick="abrirModal()"
-                        class="bg-green-700 hover:bg-green-800 text-white px-5 py-3 rounded-xl font-semibold transition">
-
+                        type="button"
+                        onclick="abrirModalCategoria()"
+                        class="bg-green-700 hover:bg-green-800 text-white px-5 py-3 rounded-xl font-semibold transition cursor-pointer">
                         <i class="fa-solid fa-plus mr-2"></i>
                         Nueva Categoría
-
                     </button>
 
                 </div>
@@ -264,27 +265,34 @@
 
         </main>
 
-        {{-- Crear nueva categoría --}}
-        @include('admin.categorias.crear')
-
-        @include('admin.categorias.editar')
-        @include('admin.categorias.eliminar')
-
         {{-- Footer --}}
         @include('layouts.footer')
 
     </div>
 
-    <script>
-        function abrirModal()
-        {
-            document.getElementById('modalCategoria').classList.remove('hidden');
-        }
+    {{-- Modales a nivel de body completo --}}
+    @include('admin.categorias.crear')
+    @include('admin.categorias.editar')
+    @include('admin.categorias.eliminar')
 
-        function cerrarModal()
+    <script>
+        window.abrirModal = window.abrirModalCategoria = function()
         {
-            document.getElementById('modalCategoria').classList.add('hidden');
-        }
+            const modal = document.getElementById('modalCategoria');
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            }
+        };
+
+        window.cerrarModal = window.cerrarModalCategoria = function()
+        {
+            const modal = document.getElementById('modalCategoria');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+        };
         document.addEventListener('DOMContentLoaded', function () {
 
             const sidebarLinks = document.querySelectorAll('aside nav a');

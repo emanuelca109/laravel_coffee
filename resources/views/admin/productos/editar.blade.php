@@ -13,18 +13,19 @@
 {{-- Modal Editar Producto --}}
 <div id="modalEditarProducto"
      class="hidden"
-     style="position: fixed; inset: 0; z-index: 50;">
+     style="position: fixed; inset: 0; z-index: 999999;">
 
-    {{-- Fondo oscuro --}}
-    <div style="position: absolute; inset: 0; background-color: rgba(0,0,0,0.55);"></div>
+    {{-- Fondo oscuro semitransparente con desenfoque / blur --}}
+    <div style="position: fixed; inset: 0; background-color: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10;"
+         onclick="cerrarModalEditar()"></div>
 
-    {{-- Modal centrado --}}
-    <div style="position: relative; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1rem;">
+    {{-- Modal centrado por encima del header --}}
+    <div style="position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; padding: 1.25rem; overflow-y: auto; pointer-events: none;">
 
-        <div style="background: #ffffff; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); width: 100%; max-width: 30rem; overflow: hidden;">
+        <div style="pointer-events: auto; background: #ffffff; border-radius: 20px; box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1); width: 100%; max-width: 32rem; max-height: calc(100vh - 2.5rem); display: flex; flex-direction: column; overflow: hidden; margin: auto;">
 
             {{-- Header --}}
-            <div style="background-color: #1e293b; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="background-color: #1e293b; padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.08); flex-shrink: 0;">
 
                 <h2 style="font-size: 17px; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 10px; margin: 0;">
                     <i class="fa-solid fa-pen-to-square" style="color: #4ade80; font-size: 14px;"></i>
@@ -32,14 +33,16 @@
                 </h2>
 
                 <button type="button" onclick="cerrarModalEditar()"
-                        style="background: none; border: none; color: #ffffff; font-size: 18px; cursor: pointer; line-height: 1;">
+                        style="background: rgba(255,255,255,0.1); border: none; color: #ffffff; font-size: 16px; cursor: pointer; line-height: 1; width: 32px; height: 32px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;"
+                        onmouseover="this.style.backgroundColor='rgba(255,255,255,0.2)'"
+                        onmouseout="this.style.backgroundColor='rgba(255,255,255,0.1)'">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
 
             </div>
 
-            {{-- Body --}}
-            <div style="padding: 20px; max-height: 75vh; overflow-y: auto;">
+            {{-- Body scrollable --}}
+            <div style="padding: 22px; overflow-y: auto; flex: 1;">
 
                 <form id="formEditarProducto" method="POST" enctype="multipart/form-data">
 
@@ -310,7 +313,7 @@
 let imagenesGuardadas = [];
 let dtEditar = new DataTransfer();
 
-function abrirModalEditar(id, nombre, descripcion, categoria_id, precio_compra, precio_venta, stock_actual, stock_minimo, proveedor_id, estado)
+window.abrirModalEditar = function(id, nombre, descripcion, categoria_id, precio_compra, precio_venta, stock_actual, stock_minimo, proveedor_id, estado)
 {
     document.getElementById('edit_nombre').value = nombre;
     document.getElementById('edit_descripcion').value = descripcion;
@@ -333,16 +336,18 @@ function abrirModalEditar(id, nombre, descripcion, categoria_id, precio_compra, 
     dtEditar = new DataTransfer();
 
     document.getElementById('modalEditarProducto').classList.remove('hidden');
-}
+    document.body.classList.add('overflow-hidden');
+};
 
-function cerrarModalEditar()
+window.cerrarModalEditar = function()
 {
     document.getElementById('modalEditarProducto').classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
     document.getElementById('edit_imagenes_input').value = '';
     document.getElementById('galeria_preview_editar').innerHTML = '';
     imagenesGuardadas = [];
     dtEditar = new DataTransfer();
-}
+};
 
 function cargarImagenesGuardadas(productoId) {
     // Obtener imágenes del servidor (esto se hace con un fetch)

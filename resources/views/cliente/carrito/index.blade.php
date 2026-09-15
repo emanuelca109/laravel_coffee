@@ -7,6 +7,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Carrito de Compras | Coffee.Dat</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('img/logo-icon.svg') }}">
+    <link rel="shortcut icon" href="{{ asset('img/logo-icon.svg') }}">
 
     {{-- Tailwind CSS (CDN) --}}
     <script src="https://cdn.tailwindcss.com"></script>
@@ -515,7 +517,7 @@
                                        :checked="allSelected" @change="toggleAll($event)">
                                 Seleccionar todo
                             </label>
-                            <span class="text-gray-400 text-sm font-medium">{{ count($carrito) }} producto(s)</span>
+                            <span id="cart-item-count" class="text-gray-400 text-sm font-medium">{{ count($carrito) }} producto(s)</span>
                         </div>
 
                         {{-- Lista de items --}}
@@ -523,7 +525,7 @@
                         @php
                             $producto = $item['producto'];
                         @endphp
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col sm:flex-row items-center gap-6 relative">
+                        <div id="cart-item-{{ $producto->id }}" class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col sm:flex-row items-center gap-6 relative transition-all duration-300">
                             
                             {{-- Checkbox --}}
                             <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500 flex-shrink-0" 
@@ -547,11 +549,11 @@
                                     {{-- Controles de cantidad con form --}}
                                     <form action="{{ route('carrito.actualizar', $producto->id) }}" method="POST" class="flex items-center border border-gray-300 rounded-lg overflow-hidden h-9 w-28 bg-white">
                                         @csrf
-                                        <button type="submit" name="cantidad" value="{{ $item['cantidad'] - 1 }}" class="w-8 h-full flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-black transition">
+                                        <button type="submit" id="cart-minus-{{ $producto->id }}" name="cantidad" value="{{ $item['cantidad'] - 1 }}" class="w-8 h-full flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-black transition">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" /></svg>
                                         </button>
-                                        <input type="text" value="{{ $item['cantidad'] }}" class="w-full h-full text-center font-bold text-sm focus:outline-none border-none pointer-events-none p-0" readonly>
-                                        <button type="submit" name="cantidad" value="{{ $item['cantidad'] + 1 }}" {{ $item['cantidad'] >= $producto->stock_disponible ? 'disabled' : '' }} class="w-8 h-full flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-black transition {{ $item['cantidad'] >= $producto->stock_disponible ? 'opacity-50 cursor-not-allowed' : '' }}">
+                                        <input type="text" id="cart-qty-{{ $producto->id }}" value="{{ $item['cantidad'] }}" class="w-full h-full text-center font-bold text-sm focus:outline-none border-none pointer-events-none p-0" readonly>
+                                        <button type="submit" id="cart-plus-{{ $producto->id }}" name="cantidad" value="{{ $item['cantidad'] + 1 }}" {{ $item['cantidad'] >= $producto->stock_disponible ? 'disabled' : '' }} class="w-8 h-full flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-black transition {{ $item['cantidad'] >= $producto->stock_disponible ? 'opacity-50 cursor-not-allowed' : '' }}">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                                         </button>
                                     </form>
@@ -564,7 +566,7 @@
 
                             {{-- Total y Eliminar --}}
                             <div class="flex flex-col items-end gap-2 justify-center ml-auto">
-                                <span class="text-xl font-extrabold text-gray-900">
+                                <span id="cart-subtotal-{{ $producto->id }}" class="text-xl font-extrabold text-gray-900">
                                     $ {{ number_format($item['subtotal'], 0, ',', '.') }} COP
                                 </span>
                                 
@@ -748,17 +750,6 @@
         }
     </style>
 
-    @if(session('success'))
-    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 1500)" 
-         x-transition:leave="transition ease-in duration-150"
-         x-transition:leave-start="opacity-100 translate-y-0"
-         x-transition:leave-end="opacity-0 translate-y-2"
-         class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-green-600 text-white px-5 py-2.5 rounded-full shadow-lg z-[9999] flex items-center gap-2 font-medium text-sm whitespace-nowrap">
-        <svg class="w-5 h-5 text-green-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        {{ session('success') }}
-    </div>
-    @endif
-
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('cartLogic', () => ({
@@ -925,28 +916,6 @@
         })
     </script>
 
-    @if(session('success'))
-    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 1500)" 
-         x-transition:leave="transition ease-in duration-150"
-         x-transition:leave-start="opacity-100 translate-y-0"
-         x-transition:leave-end="opacity-0 translate-y-2"
-         class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-green-600 text-white px-5 py-2.5 rounded-full shadow-lg z-[9999] flex items-center gap-2 font-medium text-sm whitespace-nowrap">
-        <svg class="w-5 h-5 text-green-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        {{ session('success') }}
-    </div>
-    @endif
-
-    @if(session('error'))
-    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" 
-         x-transition:leave="transition ease-in duration-150"
-         x-transition:leave-start="opacity-100 translate-y-0"
-         x-transition:leave-end="opacity-0 translate-y-2"
-         class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-red-600 text-white px-5 py-2.5 rounded-full shadow-lg z-[9999] flex items-center gap-2 font-medium text-sm whitespace-nowrap">
-        <svg class="w-5 h-5 text-red-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        {{ session('error') }}
-    </div>
-    @endif
-    
     @include('cliente.partials.auth-modals')
     
 </body>

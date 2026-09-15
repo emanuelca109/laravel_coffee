@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Productos | Coffee.dat</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('img/logo-icon.svg') }}">
+    <link rel="shortcut icon" href="{{ asset('img/logo-icon.svg') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -90,12 +92,11 @@
                     </div>
 
                     <button
-                        onclick="abrirModal()"
-                        class="bg-green-700 hover:bg-green-800 text-white px-5 py-3 rounded-xl font-semibold transition">
-
+                        type="button"
+                        onclick="abrirModalProducto()"
+                        class="bg-green-700 hover:bg-green-800 text-white px-5 py-3 rounded-xl font-semibold transition cursor-pointer">
                         <i class="fa-solid fa-plus mr-2"></i>
                         Nuevo Producto
-
                     </button>
 
                 </div>
@@ -326,16 +327,15 @@
 
         </main>
 
-        {{-- Crear nuevo producto --}}
-        @include('admin.productos.crear')
-
-        @include('admin.productos.editar')
-        @include('admin.productos.eliminar')
-
         {{-- Footer --}}
         @include('layouts.footer')
 
     </div>
+
+    {{-- Modales a nivel de body completo --}}
+    @include('admin.productos.crear')
+    @include('admin.productos.editar')
+    @include('admin.productos.eliminar')
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

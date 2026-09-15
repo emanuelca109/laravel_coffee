@@ -1,13 +1,13 @@
 {{-- Modal Eliminar Producto --}}
 <div id="modalEliminarProducto"
-     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
+     class="hidden fixed inset-0 z-[999999] flex items-center justify-center p-4">
 
     {{-- Fondo oscuro con efecto blur --}}
-    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" 
+    <div class="fixed inset-0 bg-slate-900/65 backdrop-blur-md transition-opacity" 
          onclick="cerrarModalEliminar()"></div>
 
     {{-- Modal card --}}
-    <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 text-center transform transition-all scale-100">
+    <div class="relative z-10 bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 text-center transform transition-all scale-100">
         
         {{-- Icono animado/destacado --}}
         <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-red-100 mb-5">
@@ -50,7 +50,7 @@
 </div>
 
 <script>
-function abrirModalEliminar(id, nombre)
+window.abrirModalEliminar = function(id, nombre)
 {
     document.getElementById('delete_nombre_producto').textContent = '"' + nombre + '"';
     document.getElementById('formEliminarProducto').action = '/productos/' + id;
@@ -63,6 +63,7 @@ function abrirModalEliminar(id, nombre)
     card.classList.remove('scale-100', 'opacity-100', 'transition-all', 'duration-300');
     
     modal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
     
     // Forzar reflow
     void card.offsetWidth;
@@ -70,12 +71,13 @@ function abrirModalEliminar(id, nombre)
     // Activar transición
     card.classList.add('transition-all', 'duration-300', 'scale-100', 'opacity-100');
     card.classList.remove('scale-95', 'opacity-0');
-}
+};
 
-function cerrarModalEliminar()
+window.cerrarModalEliminar = function()
 {
     const modal = document.getElementById('modalEliminarProducto');
     const card = modal.querySelector('.bg-white');
+    document.body.classList.remove('overflow-hidden');
     
     // Efecto de cierre
     card.classList.remove('scale-100', 'opacity-100');
@@ -84,7 +86,7 @@ function cerrarModalEliminar()
     setTimeout(() => {
         modal.classList.add('hidden');
     }, 200); // 200ms para permitir que la transición termine
-}
+};
 
 document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {

@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Coffee Dat')</title>
 
+    <link rel="preload" as="image" href="{{ asset('img/fon.webp') }}" type="image/webp">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     
@@ -23,7 +24,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-image: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.4)), url('{{ asset('img/fon.png') }}');
+            background-image: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.4)), url('{{ asset('img/fon.webp') }}');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -61,7 +62,7 @@
 
         .modal-login .modal-image {
             width: 45%;
-            background-image: url('{{ asset('img/fon.png') }}');
+            background-image: url('{{ asset('img/fon.webp') }}');
             background-size: cover;
             background-position: center;
             position: relative;
@@ -78,7 +79,7 @@
             content: "";
             position: absolute;
             inset: -10%;
-            background-image: url('{{ asset('img/fon.png') }}');
+            background-image: url('{{ asset('img/fon.webp') }}');
             background-size: cover;
             background-position: center;
             animation: slowPan 20s linear infinite alternate;
@@ -449,6 +450,59 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('form').forEach(form => {
+            if (form.action && (form.action.includes('/login') || form.action.includes('/register'))) {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-75');
+                    }
+
+                    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+                    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            body: new FormData(form),
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok && data.success) {
+                            window.location.href = data.redirect || '/';
+                        } else {
+                            const errorMsg = data.errors?.email?.[0] || data.errors?.password?.[0] || data.message || 'Error al procesar la solicitud';
+                            const emailInput = form.querySelector('input[name="email"]');
+                            if (emailInput) {
+                                emailInput.classList.add('is-invalid');
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'invalid-feedback';
+                                errorDiv.textContent = errorMsg;
+                                emailInput.closest('.input-icon-wrap')?.after(errorDiv);
+                            }
+                        }
+                    } catch (err) {
+                        form.submit();
+                    } finally {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('opacity-75');
+                        }
+                    }
+                });
+            }
+        });
+    });
+    </script>
     @stack('scripts')
 </body>
 </html>

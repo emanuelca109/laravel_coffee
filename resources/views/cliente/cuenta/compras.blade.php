@@ -6,6 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Mis Compras | Coffee.Dat</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('img/logo-icon.svg') }}">
+    <link rel="shortcut icon" href="{{ asset('img/logo-icon.svg') }}">
 
     {{-- Tailwind CSS (CDN) --}}
     <script src="https://cdn.tailwindcss.com"></script>
@@ -116,7 +118,7 @@
                     @if(count($pedidos) > 0)
                         <div class="space-y-6">
                             @foreach($pedidos as $pedido)
-                            <div x-data="{ open: false, confirmReturn: false }" class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                            <div x-data="{ open: false, confirmReturn: false, verFactura: false }" class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                                 {{-- Header Premium --}}
                                 <div class="bg-gradient-to-r from-[#0f172a] to-[#1e293b] px-6 py-5 flex flex-col sm:flex-row sm:justify-between sm:items-center text-white gap-4 relative overflow-hidden">
                                     <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
@@ -224,14 +226,132 @@
                                     </div>
                                     
                                     <div class="w-full sm:w-auto flex flex-wrap items-center gap-3 justify-end">
-                                        <a href="{{ route('cuenta.compras.ver_factura', $pedido->id) }}" class="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-bold text-[#0f172a] bg-slate-100 hover:bg-slate-200 transition flex items-center justify-center gap-2">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                        <button type="button" @click="verFactura = true" class="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-bold text-[#0f172a] bg-slate-100 hover:bg-slate-200 transition flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-95">
+                                            <svg class="w-4 h-4 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                                             Ver Factura
-                                        </a>
-                                        <a href="{{ route('cuenta.compras.factura', $pedido->id) }}" class="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 transition shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                                        </button>
+                                        <a href="{{ route('cuenta.compras.factura', $pedido->id) }}" class="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 transition shadow-md hover:shadow-lg flex items-center justify-center gap-2 active:scale-95">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                                             PDF
                                         </a>
+                                    </div>
+                                </div>
+
+                                {{-- Factura POS Modal --}}
+                                <div x-show="verFactura" style="display: none;" class="fixed inset-0 z-[2000] flex items-center justify-center p-4 overflow-y-auto">
+                                    {{-- Fondo oscuro con desenfoque / blur --}}
+                                    <div x-show="verFactura" 
+                                         x-transition.opacity.duration.200ms
+                                         class="fixed inset-0 bg-slate-900/65 backdrop-blur-md" 
+                                         @click="verFactura = false"></div>
+
+                                    {{-- Tarjeta Modal --}}
+                                    <div x-show="verFactura" 
+                                         x-transition:enter="transition ease-out duration-300"
+                                         x-transition:enter-start="opacity-0 scale-95 translate-y-6"
+                                         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                         x-transition:leave="transition ease-in duration-200"
+                                         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                                         x-transition:leave-end="opacity-0 scale-95 translate-y-6"
+                                         class="relative bg-white rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] w-full max-w-md z-10 overflow-hidden flex flex-col border border-slate-100 my-auto">
+                                        
+                                        {{-- Header Modal --}}
+                                        <div class="bg-gradient-to-r from-[#0f172a] to-[#1e293b] text-white px-6 py-4 flex justify-between items-center border-b border-slate-700/50">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-green-400">
+                                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                                </div>
+                                                <div>
+                                                    <h3 class="text-base font-bold leading-tight">Factura de Venta</h3>
+                                                    <p class="text-xs text-slate-300">#{{ $pedido->numero_pedido }}</p>
+                                                </div>
+                                            </div>
+                                            <button type="button" @click="verFactura = false" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition flex items-center justify-center cursor-pointer">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                            </button>
+                                        </div>
+
+                                        {{-- Ticket POS Content --}}
+                                        <div class="p-6 bg-slate-50 max-h-[65vh] overflow-y-auto">
+                                            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 text-xs text-slate-800" style="font-family: 'Courier New', Courier, monospace;">
+                                                
+                                                {{-- Encabezado Factura --}}
+                                                <div class="text-center mb-3">
+                                                    <h2 class="font-black text-lg tracking-wider text-[#0f172a]">COFFEE.DAT</h2>
+                                                    <p class="text-[11px] text-slate-500 font-sans">Los mejores granos de café</p>
+                                                    <p class="text-[10px] text-slate-400 mt-0.5 font-sans">NIT: 900.123.456-7 • Tel: +57 300 123 4567</p>
+                                                </div>
+
+                                                <div class="border-b-2 border-dashed border-slate-300 my-3"></div>
+
+                                                {{-- Datos del Comprador y Pedido --}}
+                                                <div class="space-y-1 text-[11px] text-slate-700 font-mono">
+                                                    <p><span class="font-bold">Factura No:</span> {{ $pedido->numero_pedido }}</p>
+                                                    <p><span class="font-bold">Fecha:</span> {{ \Carbon\Carbon::parse($pedido->fecha)->format('d/m/Y H:i') }}</p>
+                                                    <p><span class="font-bold">Cliente:</span> {{ $pedido->direccion->nombre_contacto ?? auth()->user()->name }}</p>
+                                                    <p><span class="font-bold">Documento:</span> {{ $pedido->direccion->documento_identidad ?? 'N/A' }}</p>
+                                                    <p><span class="font-bold">Teléfono:</span> {{ $pedido->direccion->telefono ?? 'N/A' }}</p>
+                                                    <p><span class="font-bold">Dirección:</span> {{ $pedido->direccion->direccion ?? 'N/A' }}</p>
+                                                </div>
+
+                                                <div class="border-b-2 border-dashed border-slate-300 my-3"></div>
+
+                                                {{-- Detalle de Productos --}}
+                                                <table class="w-full text-[11px]">
+                                                    <thead>
+                                                        <tr class="font-bold border-b border-slate-200">
+                                                            <th class="text-left pb-1 font-mono">CANT x ARTÍCULO</th>
+                                                            <th class="text-right pb-1 font-mono">VALOR</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="divide-y divide-slate-100">
+                                                        @foreach($pedido->detalles as $detalle)
+                                                        <tr>
+                                                            <td class="py-2 pr-2 align-top">
+                                                                <span class="font-bold">{{ $detalle->cantidad }}x</span> {{ $detalle->producto ? $detalle->producto->nombre : 'Producto eliminado' }}
+                                                                <div class="text-[10px] text-slate-400 font-sans">${{ number_format($detalle->precio_unitario ?? 0, 0) }} c/u</div>
+                                                            </td>
+                                                            <td class="py-2 align-top text-right font-black whitespace-nowrap font-mono">
+                                                                ${{ number_format($detalle->subtotal ?? 0, 0) }}
+                                                            </td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+
+                                                <div class="border-b-2 border-dashed border-slate-300 my-3"></div>
+
+                                                {{-- Total --}}
+                                                <div class="flex justify-between items-center py-1 font-mono">
+                                                    <span class="font-black text-xs uppercase">TOTAL A PAGAR:</span>
+                                                    <span class="font-black text-base text-emerald-600">${{ number_format($pedido->total ?? 0, 0) }}</span>
+                                                </div>
+
+                                                <div class="border-b-2 border-dashed border-slate-300 my-3"></div>
+
+                                                {{-- Información de Pago --}}
+                                                <div class="space-y-0.5 text-[10px] text-slate-500 font-sans">
+                                                    <p><span class="font-semibold text-slate-700">Método de pago:</span> {{ optional($pedido->pago)->metodo_pago ?? 'Contra entrega / En línea' }}</p>
+                                                    <p><span class="font-semibold text-slate-700">Estado de pago:</span> <span class="font-bold text-emerald-700">{{ optional($pedido->pago)->estado_pago ?? 'Aprobado' }}</span></p>
+                                                </div>
+
+                                                <div class="text-center mt-4 pt-2 text-[10px] text-slate-400 border-t border-slate-100 font-sans">
+                                                    <p class="font-bold text-slate-600">¡GRACIAS POR SU COMPRA!</p>
+                                                    <p class="text-[9px] mt-0.5">Coffee.Dat — Pasión por el Café</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {{-- Footer de Acciones --}}
+                                        <div class="bg-white p-4 px-6 border-t border-slate-100 flex items-center justify-between gap-3">
+                                            <button type="button" @click="verFactura = false" class="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition cursor-pointer">
+                                                Cerrar
+                                            </button>
+                                            <a href="{{ route('cuenta.compras.factura', $pedido->id) }}" class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-green-600 hover:bg-green-700 transition shadow-md hover:shadow-lg flex items-center gap-2">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                                Descargar PDF
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -405,16 +525,6 @@
         }
     </style>
 
-    @if(session('success'))
-    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 1500)" 
-         x-transition:leave="transition ease-in duration-150"
-         x-transition:leave-start="opacity-100 translate-y-0"
-         x-transition:leave-end="opacity-0 translate-y-2"
-         class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-green-600 text-white px-5 py-2.5 rounded-full shadow-lg z-[9999] flex items-center gap-2 font-medium text-sm whitespace-nowrap">
-        <svg class="w-5 h-5 text-green-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        {{ session('success') }}
-    </div>
-    @endif
     <script>
         window.addEventListener('beforeunload', () => {
             if (window.location.pathname.includes('/cuenta') || window.location.pathname.includes('/direcciones') || window.location.pathname.includes('/pedidos') || window.location.pathname.includes('/compras') || window.location.pathname.includes('/seguridad')) {

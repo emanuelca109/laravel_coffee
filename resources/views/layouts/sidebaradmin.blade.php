@@ -37,3 +37,5 @@
         @endforeach
     </nav>
 </aside>
+
+@include('layouts.admin-spa')
