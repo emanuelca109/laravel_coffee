@@ -12,7 +12,7 @@ class CategoriaController extends Controller
      */
     public function index()
     {
-        $categorias = Categoria::withCount('productos')->paginate(10);
+        $categorias = Categoria::withCount('productos')->latest()->paginate(10);
         
         return view('admin.categorias.index', compact('categorias'));
     }

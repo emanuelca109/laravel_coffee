@@ -60,6 +60,13 @@ class RegisteredUserController extends Controller
         }
 
         //Auth::login($user); esto es para que cuando se registre lo mande directamente al dashboard
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuario registrado correctamente. Por favor, inicia sesión.',
+                'open_login' => true
+            ]);
+        }
 
         return redirect()->to(url()->previous())
             ->with('success', 'Usuario registrado correctamente. Por favor, inicia sesión.')

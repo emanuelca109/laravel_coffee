@@ -18,8 +18,8 @@ class ProductoController extends Controller
     public function index()
     {
         $productos = Producto::with(['categoria', 'proveedor', 'imagenes'])->latest()->paginate(10);
-        $categorias = Categoria::where('estado', 'Activo')->get();
-        $proveedores = Proveedor::where('estado', 'Activo')->get();
+        $categorias = Categoria::where('estado', 'Activo')->latest()->get();
+        $proveedores = Proveedor::where('estado', 'Activo')->latest()->get();
 
         return view(
             'admin.productos.index',

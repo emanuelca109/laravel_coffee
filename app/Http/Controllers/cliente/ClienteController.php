@@ -21,7 +21,7 @@ class ClienteController extends Controller
             session()->flash('direct_producto_id', $data['producto_id']);
         }
 
-        $categorias = Categoria::where('estado', 'Activo')->get();
+        $categorias = Categoria::where('estado', 'Activo')->latest()->get();
 
         $productos = Producto::with(['imagenPrincipal', 'categoria']);
 
@@ -85,14 +85,21 @@ class ClienteController extends Controller
         $user = auth()->user();
 
         // El método toggle agrega el ID si no existe, o lo quita si ya existe en la tabla pivote
-        // Le pasamos un array extra para guardar la 'fecha' actual
-        $user->productosFavoritos()->toggle([
+        $result = $user->productosFavoritos()->toggle([
             $producto_id => ['fecha' => now()]
         ]);
 
-        // Si venimos de intentar dar like sin login (el middleware guardó la url intentada),
-        // queremos redirigir de vuelta a donde estábamos (ej: inicio o detalles) en lugar de quedarnos en la ruta toggle.
-        // Redirigimos a la página anterior
+        $isFavorito = in_array($producto_id, $result['attached'] ?? []);
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'isFavorito' => $isFavorito,
+                'producto_id' => $producto_id,
+                'message' => $isFavorito ? '¡Añadido a favoritos!' : 'Eliminado de favoritos'
+            ]);
+        }
+
         return redirect()->back();
     }
 
@@ -172,14 +179,22 @@ class ClienteController extends Controller
         }
 
         $carrito = session()->get('carrito', []);
-        $cantidad = $request->input('cantidad', 1);
+        $cantidad = max(1, (int)$request->input('cantidad', 1));
         $producto = Producto::findOrFail($producto_id);
 
-        $cantidadActual = isset($carrito[$producto_id]) ? $carrito[$producto_id]['cantidad'] : 0;
+        $cantidadActual = isset($carrito[$producto_id]) ? (int)$carrito[$producto_id]['cantidad'] : 0;
         $nuevaCantidad = $cantidadActual + $cantidad;
 
         if ($nuevaCantidad > $producto->stock_disponible) {
-            return redirect()->back()->with('error', 'No puedes agregar más unidades de las disponibles en stock ('.$producto->stock_disponible.').');
+            $errorMsg = 'No puedes agregar más unidades de las disponibles en stock ('.$producto->stock_disponible.').';
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMsg,
+                    'cartCount' => array_sum(array_column(session('carrito', []), 'cantidad'))
+                ], 422);
+            }
+            return redirect()->back()->with('error', $errorMsg);
         }
 
         $carrito[$producto_id] = [
@@ -189,18 +204,38 @@ class ClienteController extends Controller
         session()->put('carrito', $carrito);
         $this->sincronizarCarritoBD();
 
+        $cartCount = array_sum(array_column(session('carrito', []), 'cantidad'));
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => '¡Producto añadido al carrito!',
+                'cartCount' => $cartCount,
+                'producto_id' => $producto_id,
+                'producto_nombre' => $producto->nombre
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Producto añadido al carrito exitosamente');
     }
 
     public function actualizarCarrito(Request $request, $producto_id)
     {
         $carrito = session()->get('carrito', []);
-        $cantidad = $request->input('cantidad', 1);
+        $cantidad = (int)$request->input('cantidad', 1);
         $producto = Producto::findOrFail($producto_id);
 
         if (isset($carrito[$producto_id])) {
             if ($cantidad > $producto->stock_disponible) {
-                return redirect()->back()->with('error', 'Solo hay '.$producto->stock_disponible.' unidades disponibles en stock.');
+                $errorMsg = 'Solo hay '.$producto->stock_disponible.' unidades disponibles en stock.';
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMsg,
+                        'cartCount' => array_sum(array_column(session('carrito', []), 'cantidad'))
+                    ], 422);
+                }
+                return redirect()->back()->with('error', $errorMsg);
             }
 
             if ($cantidad > 0) {
@@ -212,10 +247,28 @@ class ClienteController extends Controller
             $this->sincronizarCarritoBD();
         }
 
+        $cartCount = array_sum(array_column(session('carrito', []), 'cantidad'));
+        $nuevaCantidad = isset($carrito[$producto_id]) ? (int)$carrito[$producto_id]['cantidad'] : 0;
+        $subtotal = $nuevaCantidad * (float)$producto->precio_venta;
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $nuevaCantidad > 0 ? 'Carrito actualizado' : 'Producto eliminado del carrito',
+                'cartCount' => $cartCount,
+                'producto_id' => (int)$producto_id,
+                'cantidad' => $nuevaCantidad,
+                'subtotal' => $subtotal,
+                'subtotal_formateado' => '$ ' . number_format($subtotal, 0, ',', '.') . ' COP',
+                'stock_disponible' => (int)$producto->stock_disponible,
+                'eliminado' => $nuevaCantidad <= 0
+            ]);
+        }
+
         return redirect()->back();
     }
 
-    public function eliminarDelCarrito($producto_id)
+    public function eliminarDelCarrito(Request $request, $producto_id)
     {
         $carrito = session()->get('carrito', []);
 
@@ -223,6 +276,20 @@ class ClienteController extends Controller
             unset($carrito[$producto_id]);
             session()->put('carrito', $carrito);
             $this->sincronizarCarritoBD();
+        }
+
+        $cartCount = array_sum(array_column(session('carrito', []), 'cantidad'));
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Producto eliminado del carrito',
+                'cartCount' => $cartCount,
+                'producto_id' => (int)$producto_id,
+                'cantidad' => 0,
+                'subtotal' => 0,
+                'eliminado' => true
+            ]);
         }
 
         return redirect()->back();

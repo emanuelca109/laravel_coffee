@@ -22,7 +22,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request)
     {
         $request->authenticate();
 
@@ -45,6 +45,24 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
+        $redirectUrl = ($user->role_id == 1) ? route('dashboard') : ($request->filled('intended_buy_product') ? url()->previous() : redirect()->intended(url()->previous())->getTargetUrl());
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => '¡Bienvenido, ' . explode(' ', $user->name)[0] . '!',
+                'redirect' => $redirectUrl,
+                'role_id' => $user->role_id,
+                'csrf_token' => csrf_token(),
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'initial' => substr($user->name, 0, 1),
+                    'first_name' => explode(' ', $user->name)[0]
+                ]
+            ]);
+        }
+
         if ($user->role_id == 1) {
             return redirect()->route('dashboard');
         }
@@ -55,7 +73,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
         Auth::guard('web')->logout();
 
@@ -63,6 +81,15 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Has cerrado sesión exitosamente.',
+                'csrf_token' => csrf_token(),
+                'redirect' => url('/')
+            ]);
+        }
 
         return redirect('/')->with('success', 'Has cerrado sesión exitosamente.');
     }
