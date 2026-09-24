@@ -300,10 +300,10 @@
                     <input type="hidden" name="tipo" value="{{ request('tipo') }}">
                 @endif
                 <a href="{{ request()->fullUrlWithQuery(['filtro' => null]) }}" class="filtro-btn {{ !request('filtro') ? 'activo' : '' }}"><i class="fa-solid fa-list"></i> Todo</a>
-                <a href="{{ request()->fullUrlWithQuery(['filtro' => 'hoy']) }}" class="filtro-btn {{ request('filtro') == 'hoy' ? 'activo' : '' }}"><i class="fa-regular fa-calendar-check"></i> Hoy</a>
-                <a href="{{ request()->fullUrlWithQuery(['filtro' => 'semana']) }}" class="filtro-btn {{ request('filtro') == 'semana' ? 'activo' : '' }}"><i class="fa-regular fa-calendar"></i> Semana</a>
-                <a href="{{ request()->fullUrlWithQuery(['filtro' => 'mes']) }}" class="filtro-btn {{ request('filtro') == 'mes' ? 'activo' : '' }}"><i class="fa-regular fa-calendar-days"></i> Mes</a>
-                <a href="{{ request()->fullUrlWithQuery(['filtro' => 'ano']) }}" class="filtro-btn {{ request('filtro') == 'ano' ? 'activo' : '' }}"><i class="fa-regular fa-calendar-alt"></i> Año</a>
+                <a href="{{ request()->fullUrlWithQuery(['filtro' => 'diario']) }}" class="filtro-btn {{ request('filtro') == 'hoy' ? 'activo' : '' }}"><i class="fa-regular fa-calendar-check"></i> Hoy</a>
+                <a href="{{ request()->fullUrlWithQuery(['filtro' => 'semanales']) }}" class="filtro-btn {{ request('filtro') == 'semana' ? 'activo' : '' }}"><i class="fa-regular fa-calendar"></i> Semana</a>
+                <a href="{{ request()->fullUrlWithQuery(['filtro' => 'mensuales']) }}" class="filtro-btn {{ request('filtro') == 'mes' ? 'activo' : '' }}"><i class="fa-regular fa-calendar-days"></i> Mes</a>
+                <a href="{{ request()->fullUrlWithQuery(['filtro' => 'anuales']) }}" class="filtro-btn {{ request('filtro') == 'ano' ? 'activo' : '' }}"><i class="fa-regular fa-calendar-alt"></i> Año</a>
                 
                 <div class="buscar-box">
                     <i class="fa-solid fa-magnifying-glass"></i>
