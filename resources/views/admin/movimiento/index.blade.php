@@ -366,9 +366,9 @@
                                             <i class="fa-solid {{ $iconClass }}"></i> {{ $movimiento->tipo_movimiento }}
                                         </span>
                                     </td>
-                                    <td class="center cantidad">{{ $movimiento->cantidad }}</td>
-                                    <td class="center stock-anterior">{{ $movimiento->stock_anterior }}</td>
-                                    <td class="center stock-nuevo {{ $stockNuevoClass }}">{{ $movimiento->stock_nuevo }}</td>
+                                    <td class="center cantidad"></td>
+                                    <td class="center stock-anterior"></td>
+                                    <td class="center stock-nuevo {{ $stockNuevoClass }}"></td>
                                 </tr>
                             @empty
                                 <tr>
