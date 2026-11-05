@@ -21,23 +21,29 @@ class ClienteController extends Controller
             session()->flash('direct_producto_id', $data['producto_id']);
         }
 
-        $categorias = Categoria::where('estado', 'Activo')->latest()->get();
+        try {
+            $categorias = Categoria::where('estado', 'Activo')->latest()->get();
 
-        $productos = Producto::with(['imagenPrincipal', 'categoria']);
+            $productos = Producto::with(['imagenPrincipal', 'categoria']);
 
-        if ($request->categoria) {
-            $productos->where('categoria_id', $request->categoria);
+            if ($request->categoria) {
+                $productos->where('categoria_id', $request->categoria);
+            }
+
+            if ($request->q) {
+                $search = $request->q;
+                $productos->where(function($query) use ($search) {
+                    $query->where('nombre', 'like', "%{$search}%")
+                          ->orWhere('descripcion', 'like', "%{$search}%");
+                });
+            }
+
+            $productos = $productos->latest()->get();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('ClienteController@inicio: ' . $e->getMessage());
+            $categorias = collect();
+            $productos = collect();
         }
-
-        if ($request->q) {
-            $search = $request->q;
-            $productos->where(function($query) use ($search) {
-                $query->where('nombre', 'like', "%{$search}%")
-                      ->orWhere('descripcion', 'like', "%{$search}%");
-            });
-        }
-
-        $productos = $productos->latest()->get();
 
         return view('welcome', compact('productos', 'categorias'));
     }

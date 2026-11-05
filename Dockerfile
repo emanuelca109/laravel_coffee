@@ -44,11 +44,13 @@ RUN composer dump-autoload --optimize --no-dev
 # Copiar configuración de Nginx
 COPY docker/nginx.conf /etc/nginx/http.d/default.conf
 
-# Permisos para storage y bootstrap/cache
+# Permisos para storage, bootstrap/cache y script de arranque
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache \
+    && sed -i 's/\r$//' /var/www/html/docker/entrypoint.sh \
+    && chmod +x /var/www/html/docker/entrypoint.sh
 
 EXPOSE 80
 
-# Iniciar Nginx y PHP-FPM
-CMD sh -c "php artisan storage:link || true && php artisan config:cache && php artisan route:cache && php artisan view:cache && nginx && php-fpm"
+# Iniciar aplicación mediante entrypoint automatizado
+CMD ["/bin/sh", "/var/www/html/docker/entrypoint.sh"]
