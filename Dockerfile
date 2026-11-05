@@ -1,8 +1,8 @@
-# Stage 1: Dependencias de Composer
+# Stage 1: Dependencias de Composer (sin scripts para evitar que busque 'artisan')
 FROM composer:2 AS vendor
 WORKDIR /app
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts --ignore-platform-reqs
 
 # Stage 2: Compilación de Vite (Frontend)
 FROM node:20-alpine AS frontend
@@ -34,8 +34,12 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 
 WORKDIR /var/www/html
 
-# Copiar aplicación y assets compilados
+# Copiar aplicación completa y assets de Vite
 COPY --from=frontend /app /var/www/html
+
+# Copiar binario de composer y generar el autoloader final con package:discover
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+RUN composer dump-autoload --optimize --no-dev
 
 # Copiar configuración de Nginx
 COPY docker/nginx.conf /etc/nginx/http.d/default.conf
@@ -46,5 +50,5 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 EXPOSE 80
 
-# Iniciar Nginx y PHP-FPM con optimizaciones de Laravel
+# Iniciar Nginx y PHP-FPM
 CMD sh -c "php artisan storage:link || true && php artisan config:cache && php artisan route:cache && php artisan view:cache && nginx && php-fpm"
