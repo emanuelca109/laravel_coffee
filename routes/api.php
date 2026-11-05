@@ -56,7 +56,7 @@ Route::middleware('auth.api')->group(function () {
     Route::delete('/carrito/vaciar', [CarritoApiController::class, 'vaciar']);
 
     // Direcciones de Envío
-    Route::apiResource('direcciones', DireccionApiController::class);
+    Route::apiResource('direcciones', DireccionApiController::class)->names('api.direcciones');
 
     // Checkout y Pedidos del Cliente
     Route::post('/checkout', [PedidoApiController::class, 'checkout']);
