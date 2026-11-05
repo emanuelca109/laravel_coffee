@@ -69,4 +69,36 @@ Route::put('/devoluciones/{devolucion}', [\App\Http\Controllers\Admin\Devolucion
 // API endpoint para obtener imágenes de un producto
 Route::get('/api/productos/{producto}/imagenes', [ProductoController::class, 'obtenerImagenes']);
 
+// Endpoint de sincronización y siembra de base de datos para producción (Render)
+Route::get('/app-seed-database', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $migrateLog = \Illuminate\Support\Facades\Artisan::output();
+
+        \Illuminate\Support\Facades\Artisan::call('db:seed', [
+            '--class' => 'InitialDataSeeder',
+            '--force' => true,
+        ]);
+        $seedLog = \Illuminate\Support\Facades\Artisan::output();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Base de datos sincronizada y datos iniciales cargados.',
+            'productos_count' => \Illuminate\Support\Facades\DB::table('productos')->count(),
+            'categorias_count' => \Illuminate\Support\Facades\DB::table('categorias')->count(),
+            'users_count' => \Illuminate\Support\Facades\DB::table('users')->count(),
+            'imagenes_count' => \Illuminate\Support\Facades\DB::table('imagenes')->count(),
+            'inventarios_count' => \Illuminate\Support\Facades\DB::table('inventarios')->count(),
+            'migrate_output' => trim($migrateLog),
+            'seed_output' => trim($seedLog),
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'file' => $e->getFile() . ':' . $e->getLine(),
+        ], 500);
+    }
+});
+
 require __DIR__.'/auth.php';

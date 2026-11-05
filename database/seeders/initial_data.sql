@@ -125,3 +125,4 @@ INSERT INTO `imagenes` (`id`, `url_imagen`, `descripcion`, `principal`, `product
 INSERT INTO `imagenes` (`id`, `url_imagen`, `descripcion`, `principal`, `producto_id`, `created_at`, `updated_at`) VALUES ('53', 'productos/1790274509_0_prod_69ff83c095ad46.11016704.png', NULL, '1', '20', '2026-09-24 18:28:29', '2026-09-24 18:28:29') ON DUPLICATE KEY UPDATE id=id;
 
 SET FOREIGN_KEY_CHECKS = 1;
+

@@ -13,10 +13,11 @@ echo "==> [Coffee Startup] Sincronizando base de datos (migraciones)..."
 php artisan migrate --force || echo "==> [Coffee Startup] Advertencia: Las migraciones no se ejecutaron completamente."
 
 echo "==> [Coffee Startup] Sembrando datos iniciales de la tienda (categorías, productos, imágenes)..."
-php artisan db:seed --class=InitialDataSeeder --force || echo "==> [Coffee Startup] Advertencia: No se pudieron sembrar datos iniciales."
+php artisan db:seed --force || echo "==> [Coffee Startup] Advertencia: No se pudieron sembrar datos iniciales."
 
 echo "==> [Coffee Startup] Iniciando servidor Nginx..."
 nginx
 
 echo "==> [Coffee Startup] Iniciando PHP-FPM..."
 exec php-fpm
+

@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
 
 class InitialDataSeeder extends Seeder
 {
@@ -20,7 +21,7 @@ class InitialDataSeeder extends Seeder
             return;
         }
 
-        // Si ya existen productos, evitar re-inserción innecesaria
+        // Si ya existen al menos 19 productos, no necesitamos volver a insertar
         if (Schema::hasTable('productos') && DB::table('productos')->count() >= 19) {
             $this->command?->info('El catálogo de productos ya cuenta con los registros iniciales.');
             return;
@@ -32,27 +33,28 @@ class InitialDataSeeder extends Seeder
         try {
             DB::statement('SET FOREIGN_KEY_CHECKS = 0;');
         } catch (\Throwable $e) {
-            // Ignorar si el driver no lo soporta
+            // Ignorar si no está soportado
         }
 
-        // Intentar ejecución directa por bloques o por sentencias individuales
-        $statements = array_filter(
-            array_map('trim', explode(";\n", $sql)),
-            fn($stmt) => !empty($stmt) && !str_starts_with($stmt, '--')
-        );
+        // Dividir por punto y coma seguido de fin de línea (\r\n o \n)
+        $lines = preg_split('/;\s*[\r\n]+/', $sql);
 
         $inserted = 0;
-        foreach ($statements as $statement) {
+        foreach ($lines as $statement) {
             $cleaned = trim($statement);
+            // Eliminar líneas de comentarios SQL (-- ...)
+            $cleaned = preg_replace('/^--.*$/m', '', $cleaned);
+            $cleaned = trim($cleaned);
+
             if (empty($cleaned)) {
                 continue;
             }
 
             try {
-                DB::unprepared($cleaned . ';');
+                DB::statement($cleaned);
                 $inserted++;
             } catch (\Throwable $e) {
-                // Loguear pero continuar con las siguientes sentencias para máxima resiliencia
+                Log::warning("InitialDataSeeder: " . $e->getMessage() . " | SQL: " . substr($cleaned, 0, 80));
             }
         }
 
@@ -62,6 +64,6 @@ class InitialDataSeeder extends Seeder
             // Ignorar
         }
 
-        $this->command?->info("Seeder completado. Se procesaron $inserted sentencias iniciales.");
+        $this->command?->info("Seeder completado. Se ejecutaron $inserted sentencias iniciales.");
     }
 }
