@@ -20,11 +20,11 @@
     {{-- ==========================================
             HEADER (fijo arriba)
     =========================================== --}}
-    <header class="fixed top-0 left-0 w-full z-[1000] h-40 flex flex-col items-center justify-center gap-3 bg-cover bg-center bg-no-repeat"
-            style="background-image: url('{{ asset('img/ca.png') }}');">
+    <header class="fixed top-0 left-0 w-full z-[1000] h-40 flex flex-col items-center justify-center gap-3 bg-cover bg-center bg-no-repeat bg-gray-900 shadow-md"
+            style="background-image: url('{{ asset('img/header-bg.jpg') }}');">
 
         {{-- Overlay oscuro --}}
-        <div class="absolute inset-0 bg-black/35"></div>
+        <div class="absolute inset-0 bg-black/40"></div>
 
         {{-- Zona de Usuario --}}
         <div class="absolute z-30 top-5 right-8">
@@ -58,7 +58,7 @@
                     </div>
                 </div>
             @else
-                <button type="button" x-data @click="$dispatch('open-login')"
+                <button type="button" onclick="window.openLoginModal()" x-data @click="$dispatch('open-login')"
                    class="w-[54px] h-[54px] rounded-full bg-green-700 hover:bg-green-800 flex items-center justify-center transition shadow-lg relative focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-[26px] h-[26px] text-white" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.4c-3.3 0-9.8 1.6-9.8 4.9v1.6h19.6v-1.6c0-3.3-6.5-4.9-9.8-4.9z"/>

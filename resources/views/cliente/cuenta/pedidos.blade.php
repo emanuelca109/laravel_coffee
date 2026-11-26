@@ -16,9 +16,9 @@
 <body class="font-sans antialiased bg-gray-50">
 
     {{-- HEADER (fijo arriba) --}}
-    <header class="fixed top-0 left-0 w-full z-[1000] h-40 flex flex-col items-center justify-center gap-3 bg-cover bg-center bg-no-repeat"
-            style="background-image: url('{{ asset('img/ca.png') }}');">
-        <div class="absolute inset-0 bg-black/35"></div>
+    <header class="fixed top-0 left-0 w-full z-[1000] h-40 flex flex-col items-center justify-center gap-3 bg-cover bg-center bg-no-repeat bg-gray-900 shadow-md"
+            style="background-image: url('{{ asset('img/header-bg.jpg') }}');">
+        <div class="absolute inset-0 bg-black/40"></div>
         
         <div class="absolute z-30 top-5 right-8">
             <div x-data="{ open: false }" class="relative">

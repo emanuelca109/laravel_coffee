@@ -51,7 +51,7 @@ class ProductoApiController extends Controller
         $productos = $query->paginate($perPage);
 
         // Mapear URLs absolutas para Flutter y stock
-        $userId = auth('sanctum')->id() ?? auth()->id();
+        $userId = $request->user()?->id ?? auth()->id();
         $favoritosIds = [];
         if ($userId) {
             $favoritosIds = \Illuminate\Support\Facades\DB::table('favoritos')
@@ -85,7 +85,7 @@ class ProductoApiController extends Controller
     /**
      * Ver detalles completos de un producto específico.
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $producto = Producto::with([
             'categoria',
@@ -95,7 +95,7 @@ class ProductoApiController extends Controller
             'inventario'
         ])->findOrFail($id);
 
-        $userId = auth('sanctum')->id() ?? auth()->id();
+        $userId = $request->user()?->id ?? auth()->id();
         $isFavorito = false;
         if ($userId) {
             $isFavorito = \Illuminate\Support\Facades\DB::table('favoritos')

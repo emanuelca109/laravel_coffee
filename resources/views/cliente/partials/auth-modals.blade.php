@@ -402,7 +402,88 @@
 <!-- Import Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-<div x-data="authModals()" 
+<script>
+function registerAuthModals() {
+    if (typeof Alpine !== 'undefined' && Alpine.data) {
+        Alpine.data('authModals', () => ({
+            mode: '{!! session('status') ? 'forgot' : ((count($errors) > 0 && old("name")) ? "register" : ((count($errors) > 0 && !old("password")) ? "forgot" : "login")) !!}',
+            isOpen: {{ (count($errors) > 0 || session()->has('open_login') || session('status')) ? 'true' : 'false' }},
+            intendedFav: '',
+            intendedBuyId: '',
+            intendedBuyQty: 1,
+            
+            setIntendedFav(id) {
+                this.intendedFav = id;
+            },
+
+            setIntendedBuy(id, qty) {
+                this.intendedBuyId = id;
+                this.intendedBuyQty = qty || 1;
+            },
+        
+            togglePass(inputId, iconId) {
+                const input = document.getElementById(inputId);
+                const icon = document.getElementById(iconId);
+                if(input && icon) {
+                    if(input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('bi-eye-fill');
+                        icon.classList.add('bi-eye-slash-fill');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('bi-eye-slash-fill');
+                        icon.classList.add('bi-eye-fill');
+                    }
+                }
+            }
+        }));
+    }
+}
+if (window.Alpine) {
+    registerAuthModals();
+} else {
+    document.addEventListener('alpine:init', registerAuthModals);
+}
+
+window.openLoginModal = function(favId = '', buyId = '', buyQty = 1) {
+    const el = document.getElementById('authModalsContainer');
+    if (el && window.Alpine) {
+        try {
+            const data = Alpine.$data(el);
+            if (data) {
+                data.mode = 'login';
+                data.isOpen = true;
+                if (data.setIntendedFav) data.setIntendedFav(favId);
+                if (data.setIntendedBuy) data.setIntendedBuy(buyId, buyQty);
+                return;
+            }
+        } catch(e) {}
+    }
+    window.dispatchEvent(new CustomEvent('open-login', { detail: { productId: favId, buyProductId: buyId, buyQuantity: buyQty } }));
+    if (el) el.style.display = 'flex';
+};
+
+window.openRegisterModal = function(favId = '', buyId = '', buyQty = 1) {
+    const el = document.getElementById('authModalsContainer');
+    if (el && window.Alpine) {
+        try {
+            const data = Alpine.$data(el);
+            if (data) {
+                data.mode = 'register';
+                data.isOpen = true;
+                if (data.setIntendedFav) data.setIntendedFav(favId);
+                if (data.setIntendedBuy) data.setIntendedBuy(buyId, buyQty);
+                return;
+            }
+        } catch(e) {}
+    }
+    window.dispatchEvent(new CustomEvent('open-register', { detail: { productId: favId, buyProductId: buyId, buyQuantity: buyQty } }));
+    if (el) el.style.display = 'flex';
+};
+</script>
+
+<div id="authModalsContainer"
+     x-data="authModals()" 
      @open-login.window="isOpen = true; mode = 'login'; setIntendedFav($event.detail?.productId || ''); setIntendedBuy($event.detail?.buyProductId || '', $event.detail?.buyQuantity || 1);" 
      @open-register.window="isOpen = true; mode = 'register'; setIntendedFav($event.detail?.productId || ''); setIntendedBuy($event.detail?.buyProductId || '', $event.detail?.buyQuantity || 1);"
      @keydown.escape.window="isOpen = false"
@@ -704,22 +785,23 @@ document.addEventListener('DOMContentLoaded', () => {
 @endif
 
 <script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('authModals', () => ({
-        mode: '{!! session('status') ? 'forgot' : ((count($errors) > 0 && old("name")) ? "register" : ((count($errors) > 0 && !old("password")) ? "forgot" : "login")) !!}',
-        isOpen: {{ (count($errors) > 0 || session()->has('open_login') || session('status')) ? 'true' : 'false' }},
-        intendedFav: '',
-        intendedBuyId: '',
-        intendedBuyQty: 1,
-        
-        setIntendedFav(id) {
-            this.intendedFav = id;
-        },
+function registerAuthModals() {
+    if (typeof Alpine !== 'undefined' && Alpine.data) {
+        Alpine.data('authModals', () => ({
+            mode: '{!! session('status') ? 'forgot' : ((count($errors) > 0 && old("name")) ? "register" : ((count($errors) > 0 && !old("password")) ? "forgot" : "login")) !!}',
+            isOpen: {{ (count($errors) > 0 || session()->has('open_login') || session('status')) ? 'true' : 'false' }},
+            intendedFav: '',
+            intendedBuyId: '',
+            intendedBuyQty: 1,
+            
+            setIntendedFav(id) {
+                this.intendedFav = id;
+            },
 
-        setIntendedBuy(id, qty) {
-            this.intendedBuyId = id;
-            this.intendedBuyQty = qty || 1;
-        },
+            setIntendedBuy(id, qty) {
+                this.intendedBuyId = id;
+                this.intendedBuyQty = qty || 1;
+            },
         
         togglePass(inputId, iconId) {
             const input = document.getElementById(inputId);
@@ -737,7 +819,12 @@ document.addEventListener('alpine:init', () => {
             }
         }
     }));
-});
+}
+if (window.Alpine) {
+    registerAuthModals();
+} else {
+    document.addEventListener('alpine:init', registerAuthModals);
+}
 
 // Toast notification utility - Compact, beautiful, super-fast modern pill design
 window.showAjaxToast = function(message, type = 'success') {
@@ -968,8 +1055,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             window.showAjaxToast(isNowFav ? '¡Añadido a favoritos!' : 'Eliminado de favoritos', 'success');
 
-            // Invalidate favorites cache so next visit has updated list
-            spaCache.delete(window.location.origin + '/favoritos');
+            // Invalidate cache so next visit has updated list
+            spaCache.clear();
 
             try {
                 const res = await fetch(favLink.href, {
@@ -978,6 +1065,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         'Accept': 'application/json'
                     }
                 });
+
+                if (res.status === 401) {
+                    if (heartSvg) {
+                        heartSvg.setAttribute('fill', 'none');
+                        heartSvg.classList.remove('text-red-500');
+                        heartSvg.classList.add('text-gray-400');
+                    }
+                    window.showAjaxToast('Inicia sesión para guardar en favoritos', 'info');
+                    const prodId = favLink.href.split('/favorito/')[1]?.split('/')[0] || '';
+                    window.dispatchEvent(new CustomEvent('open-login', { detail: { productId: prodId } }));
+                    return;
+                }
                 
                 if (res.ok) {
                     const data = await res.json();

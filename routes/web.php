@@ -87,15 +87,29 @@ Route::get('/app-seed-database', function () {
             'productos_count' => \Illuminate\Support\Facades\DB::table('productos')->count(),
             'categorias_count' => \Illuminate\Support\Facades\DB::table('categorias')->count(),
             'users_count' => \Illuminate\Support\Facades\DB::table('users')->count(),
+            'users' => \Illuminate\Support\Facades\DB::table('users')->select('id', 'name', 'email', 'role_id')->get(),
             'imagenes_count' => \Illuminate\Support\Facades\DB::table('imagenes')->count(),
             'inventarios_count' => \Illuminate\Support\Facades\DB::table('inventarios')->count(),
             'migrate_output' => trim($migrateLog),
             'seed_output' => trim($seedLog),
         ]);
     } catch (\Throwable $e) {
+        $allEnv = array_keys($_SERVER + $_ENV + getenv());
+        sort($allEnv);
+        $dbVars = [];
+        foreach ($allEnv as $k) {
+            if (str_contains(strtoupper($k), 'DB') || str_contains(strtoupper($k), 'MYSQL') || str_contains(strtoupper($k), 'DATABASE')) {
+                $val = getenv($k);
+                if (str_contains(strtoupper($k), 'PASS') || str_contains(strtoupper($k), 'SECRET')) {
+                    $val = '***';
+                }
+                $dbVars[$k] = $val;
+            }
+        }
         return response()->json([
             'success' => false,
             'error' => $e->getMessage(),
+            'db_vars' => $dbVars,
             'file' => $e->getFile() . ':' . $e->getLine(),
         ], 500);
     }

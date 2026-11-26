@@ -1,0 +1,12 @@
+.git/
+node_modules/
+tests/
+documentacion/
+documentacion md/
+database/sql/
+.vscode/
+.postman/
+*.log
+*.tmp
+*.bak
+grep.exe.stackdump

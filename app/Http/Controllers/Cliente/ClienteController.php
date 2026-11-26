@@ -39,6 +39,17 @@ class ClienteController extends Controller
             }
 
             $productos = $productos->latest()->get();
+
+            if ($productos->isEmpty() && !$request->categoria && !$request->q) {
+                try {
+                    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'InitialDataSeeder', '--force' => true]);
+                    $categorias = Categoria::where('estado', 'Activo')->latest()->get();
+                    $productos = Producto::with(['imagenPrincipal', 'categoria'])->latest()->get();
+                } catch (\Throwable $seedEx) {
+                    \Illuminate\Support\Facades\Log::warning('Auto-seed error: ' . $seedEx->getMessage());
+                }
+            }
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('ClienteController@inicio: ' . $e->getMessage());
             $categorias = collect();
@@ -77,9 +88,9 @@ class ClienteController extends Controller
     {
         $favoritos = collect(); // Por defecto, una colección vacía
 
-        // Si el usuario inició sesión, cargamos sus productos favoritos
+        // Si el usuario inició sesión, cargamos sus productos favoritos con sus relaciones
         if (auth()->check()) {
-            $favoritos = auth()->user()->productosFavoritos;
+            $favoritos = auth()->user()->productosFavoritos()->with(['imagenPrincipal', 'categoria'])->get();
         }
 
         return view('cliente.favoritos.index', compact('favoritos'));
@@ -89,19 +100,20 @@ class ClienteController extends Controller
     public function toggleFavorito($producto_id)
     {
         $user = auth()->user();
+        $prodId = (int)$producto_id;
 
         // El método toggle agrega el ID si no existe, o lo quita si ya existe en la tabla pivote
         $result = $user->productosFavoritos()->toggle([
-            $producto_id => ['fecha' => now()]
+            $prodId => ['fecha' => now()]
         ]);
 
-        $isFavorito = in_array($producto_id, $result['attached'] ?? []);
+        $isFavorito = in_array($prodId, array_map('intval', $result['attached'] ?? []));
 
         if (request()->ajax() || request()->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'isFavorito' => $isFavorito,
-                'producto_id' => $producto_id,
+                'producto_id' => $prodId,
                 'message' => $isFavorito ? '¡Añadido a favoritos!' : 'Eliminado de favoritos'
             ]);
         }

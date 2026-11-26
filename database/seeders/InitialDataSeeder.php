@@ -143,6 +143,7 @@ class InitialDataSeeder extends Seeder
   ),
 );
             foreach ($data as $row) {
+                $row['password'] = \Illuminate\Support\Facades\Hash::make('12345678');
                 try {
                     DB::table('users')->updateOrInsert(['id' => $row['id']], $row);
                 } catch (\Throwable $e) {
